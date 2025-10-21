@@ -45,13 +45,13 @@ if sys.platform == 'win32':
     os.system("dotnet restore OpenUtau -r win-x86")
     os.system(
         "dotnet publish OpenUtau -c Release -r win-x86 --self-contained true -o bin/win-x86")
-    os.system("copy /y OpenUtau.Plugin.Builtin\\bin\\Release\\netstandard2.1\\OpenUtau.Plugin.Builtin.dll bin\\win-x86")
+    os.system("copy /y OpenUtau.Plugin.Builtin\\bin\\Release\\net8.0-windows10.0.26100.0\\OpenUtau.Plugin.Builtin.dll bin\\win-x86")
     write_appcast("windows", "win-x86", "OpenUtau-win-x86.zip")
 
     os.system("dotnet restore OpenUtau -r win-x64")
     os.system(
         "dotnet publish OpenUtau -c Release -r win-x64 --self-contained true -o bin/win-x64")
-    os.system("copy /y OpenUtau.Plugin.Builtin\\bin\\Release\\netstandard2.1\\OpenUtau.Plugin.Builtin.dll bin\\win-x64")
+    os.system("copy /y OpenUtau.Plugin.Builtin\\bin\\Release\\net8.0-windows10.0.26100.0\\OpenUtau.Plugin.Builtin.dll bin\\win-x64")
     write_appcast("windows", "win-x64", "OpenUtau-win-x64.zip")
 
     os.system("makensis -DPRODUCT_VERSION=%s OpenUtau.nsi" % (appcast_ver))

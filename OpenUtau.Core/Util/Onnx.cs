@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.ML.OnnxRuntime;
+using Microsoft.Windows.AI.MachineLearning;
 using OpenUtau.Core.Util;
 
 namespace OpenUtau.Core {
@@ -19,6 +20,7 @@ namespace OpenUtau.Core {
 
         private static Dictionary<int, OrtEpDevice> initializeDevices() {
             var env = OrtEnv.Instance();
+
             var ortDevices = env.GetEpDevices();
 
             return ortDevices
@@ -46,6 +48,13 @@ namespace OpenUtau.Core {
         public static List<GpuInfo> getGpuInfo() {
             List<GpuInfo> gpuList = new List<GpuInfo>();
             var env = OrtEnv.Instance();
+            // Get the default ExecutionProviderCatalog
+            var catalog = ExecutionProviderCatalog.GetDefault();
+
+            // Ensure and register all compatible execution providers with ONNX Runtime
+            // This downloads any necessary components and registers them
+            catalog.EnsureAndRegisterCertifiedAsync().Wait();
+
             var ortDevices = env.GetEpDevices();
 
             var i = 0;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using OpenUtau.Core.Util;
 using Serilog;
 
 namespace OpenUtau.Audio {
@@ -31,22 +30,18 @@ namespace OpenUtau.Audio {
                 GCHandle.Alloc(f);
                 callbackPtr = Marshal.GetFunctionPointerForDelegate(f);
             }
-            if (Guid.TryParse(Preferences.Default.PlaybackDevice, out var guid)) {
-                SelectDevice(guid, Preferences.Default.PlaybackDeviceNumber);
-            } else {
-                bool foundDevice = false;
-                foreach (AudioOutputDevice dev in devices) {
-                    try {
-                        SelectDevice(dev.guid, dev.deviceNumber);
-                        foundDevice = true;
-                        break;
-                    } catch (Exception e) {
-                        Log.Warning(e, $"Failed to init audio device {dev}");
-                    }
+            bool foundDevice = false;
+            foreach (AudioOutputDevice dev in devices) {
+                try {
+                    SelectDevice(dev.guid, dev.deviceNumber);
+                    foundDevice = true;
+                    break;
+                } catch (Exception e) {
+                    Log.Warning(e, $"Failed to init audio device {dev}");
                 }
-                if (!foundDevice) {
-                    throw new Exception("Failed to init any audio device");
-                }
+            }
+            if (!foundDevice) {
+                throw new Exception("Failed to init any audio device");
             }
         }
 
@@ -70,7 +65,7 @@ namespace OpenUtau.Audio {
                         *(ulong*)(guidPtr + 8) = device_infos[i].id;
                     }
                     string api = Marshal.PtrToStringUTF8(device_infos[i].api); // Should be ascii.
-                    string name = (OS.IsWindows() && api != "WASAPI")
+                    string name =  api != "WASAPI"
                         ? Marshal.PtrToStringAnsi(device_infos[i].name)
                         : Marshal.PtrToStringUTF8(device_infos[i].name);
                     devices.Add(new AudioOutputDevice {
@@ -179,11 +174,6 @@ namespace OpenUtau.Audio {
             }
             selectedDevice = guid;
             DeviceNumber = deviceNumber;
-            if (Preferences.Default.PlaybackDevice != guid.ToString()) {
-                Preferences.Default.PlaybackDevice = guid.ToString();
-                Preferences.Default.PlaybackDeviceNumber = deviceNumber;
-                Preferences.Save();
-            }
         }
 
         public List<AudioOutputDevice> GetOutputDevices() {
